@@ -70,24 +70,28 @@ class Item extends CI_Model
     }
 
     /**
-     * Update an item in the wish list.
-     * @param $itemConfigArray ArrayObject Details of the item as an associative array
+     * Delete an item from a users's wish list.
+     * @param $itemId integer id of the item to be deleted
      * @return bool Returns true if result is successful or false if not found.
      */
-    public function updateBook($itemConfigArray)
+    public function deleteItem($itemId)
     {
-        $this->db->insert('item', $itemConfigArray);
+        echo "dsfas";
+        $this->db->where('itemId', $itemId);
+        $this->db->delete('item');
         return ($this->db->affected_rows() !== 1) ? false : true;
     }
 
     /**
-     * Delete an item from the wish list.
-     * @param $itemId integer id of the item
+     * Delete an item from a users's wish list.
+     * @param $itemId integer Id of the item to be updates
+     * @param $itemUpdateConfigArray ArrayObject Details of the item to be updated
      * @return bool Returns true if result is successful or false if not found.
      */
-    public function deleteBook($itemId)
+    public function updateItem($itemId, $itemUpdateConfigArray)
     {
-        $this->db->insert('Item', $itemId);
+        $this->db->where('itemId', $itemId);
+        $this->db->update('item', $itemUpdateConfigArray);
         return ($this->db->affected_rows() !== 1) ? false : true;
     }
 }

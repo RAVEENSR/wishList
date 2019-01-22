@@ -19,10 +19,6 @@ class ItemController extends REST_Controller
     {
         // Parent constructor call
         parent::__construct();
-        if (!$this->session->userdata('username')) {
-            // if the user is not logged in redirect them to the login page
-            redirect(site_url() . '/userController/loadLogin');
-        }
     }
 
     public function index()
@@ -35,36 +31,58 @@ class ItemController extends REST_Controller
         }
     }
 
-//    /**
-//     * Loads the view for wish list.
-//     */
-//    public function loadWishList() {
-//        if ($this->session->userdata('username') != '') {
-//            $this->load->view('user/WishList');
-//        } else {
-//            // if the user is not logged in redirect them to the login page
-//            redirect(site_url() . '/userController/loadLogin');
-//        }
-//    }
-
     /**
-     * Controls getting all the categories from the database.
-     * @return array|bool
+     * REST api method used to get wish list items of a user.
+     * Sends isValid as false.
      */
     public function items_get()
     {
+        $userId = $this->get('userId');
         $this->load->model('Item');
-        $result = $this->Book->getAllMainCategories();
-        // if results not found false will be returned
-        if (!$result) {
-            return false;
+        $result = $this->Item->getAllItems($userId);
+        echo json_encode($result);//TODO: check this to use the correct way
+//        if ($result) {
+//            $this->response (array('isValid' => true, 'result' => $result), REST_Controller::HTTP_OK);
+//        } else {
+//            $this->response(array('isValid' => false), REST_Controller::HTTP_NOT_FOUND);
+//        }
+    }
+
+    /**
+     * REST api method used to remove an item from a users's wish list.
+     * Sends isValid as false.
+     * @param $itemId integer id of the iteme to be deleted
+     */
+    public function items_delete($itemId)
+    {
+        $this->load->model('Item');
+        $result = $this->Item->deleteItem($itemId);
+        if ($result) {
+            $this->response (array('isValid' => true), REST_Controller::HTTP_NO_CONTENT);
+        } else {
+            $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
         }
-        $categories = array();
-        foreach ($result as $row) {
-            // row is an object, attributes are columns in the table
-            $categories[] = $row->categoryTitle;
+    }
+
+    /**
+     * REST api method used to remove an item from a users's wish list.
+     * Sends isValid as false.
+     */
+    public function items_put()
+    {
+        $itemId = $this->get('itemId');
+        $title = $this->get('title');
+        $url = $this->get('url');
+        $price = $this->get('price');
+        $priority = $this->get('priority');
+        $this->load->model('Item');
+        $result = $this->Item->updateItem($itemId, array('title' => $title, 'url' => $url, 'price' => $price,
+            'priority' => $priority));
+        if ($result) {
+            $this->response (array('isValid' => true), REST_Controller::HTTP_OK);
+        } else {
+            $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
         }
-        return $categories;
     }
 
     /**

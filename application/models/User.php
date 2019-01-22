@@ -42,7 +42,8 @@ class User extends CI_Model {
      * @return bool|ArrayObject Returns the result array if found or false if not found.
      */
     public function login($username, $password) {
-        $this->db->where(array('username' => $username,'password' => $password));
+        $this->db->where('username', $username);
+        $this->db->where('password', $password);
         $result = $this->db->get('user');
         // check the number of rows in the result
         if ($result->num_rows() !== 1) {

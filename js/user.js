@@ -1,10 +1,10 @@
 // backbone model for user
 
 var UserModel = Backbone.Model.extend({
-    urlRoot : 'http://localhost/wishList/index.php/UserController/user',
-    defaults : {
-        username : '',
-        password : ''
+    urlRoot: 'http://localhost/wishList/index.php/UserController/user',
+    defaults: {
+        username: '',
+        password: ''
     }
 });
 
@@ -29,18 +29,18 @@ var UserModel = Backbone.Model.extend({
 
 // backbone view for user login
 var UserLoginView = Backbone.View.extend({
-    initialize: function(){
+    initialize: function () {
         this.render();
     },
-    render: function(template){
-        if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === "false"){
+    render: function (template) {
+        if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === "false") {
             // using underscore compile the #loginTemplate template
-            var template = _.template( $("#loginTemplate").html(), {} );
+            var template = _.template($("#loginTemplate").html(), {});
             // load compiled HTML template into the backbone "el"
-            this.$el.html( template );
-        } else{
+            this.$el.html(template);
+        } else {
             // using underscore compile the #loggedTemplate template
-            var template = _.template( $("#loggedTemplate").html(),{} );
+            var template = _.template($("#loggedTemplate").html(), {});
             // load compiled HTML template into the backbone "el"
             this.$el.html(template);
         }
@@ -49,21 +49,32 @@ var UserLoginView = Backbone.View.extend({
         "click .btn[id=logout-btn]": "doLogout",
         "click .btn[id=login-btn]": "doLogin",
         "click .btn[id=register-btn]": "loadRegister"
-},
+    },
     /* login event */
-    doLogin: function(event){
-        if($("#username").val() !== "" && $("#password").val() !== "" ){
+    doLogin: function (event) {
+        if ($("#username").val() !== "" && $("#password").val() !== "") {
             var user = new UserModel();
             var self = this;
             // The fetch will perform GET /user/1
             user.fetch({
-                data: $.param({username: $("#username").val(), password:$("#password").val()}),
+                data: $.param({username: $("#username").val(), password: $("#password").val()}),
                 success: function (user) {
                     if (user.attributes.isValid) {
                         login_view.close();
-                        $("#logged-in-div").show();
-                        var template = _.template( $("#loggedTemplate").html(),{} );
+                        var template = _.template($("#loggedTemplate").html(), {});
                         self.$el.html(template);
+                        itemList.fetch({
+                            data: $.param({
+                                userId: user.attributes.result[0].userId,
+                            }),
+                            success: function (result) {
+                                var wishList = new ItemListView({
+                                    el: $("#wishList"),
+                                    model: itemList
+                                });
+                                wishList.render();
+                            }
+                        });
                         // store username and status in session storage
                         sessionStorage.isloggedIn = true;
                         sessionStorage.username = user.attributes.result.username;
@@ -82,19 +93,18 @@ var UserLoginView = Backbone.View.extend({
         }
     },
     /* logout event*/
-    doLogout: function(event){
+    doLogout: function (event) {
         var self = this;
-        $.post( "http://localhost/wishList/index.php/userController/logout", function(data) {
+        $.post("http://localhost/wishList/index.php/userController/logout", function (data) {
             sessionStorage.isloggedIn = "false";
             sessionStorage.username = "";
-            $("#logged-in-div").hide();
-            var template = _.template( $("#loginTemplate").html(), {} );
-            self.$el.html( template );
+            var template = _.template($("#loginTemplate").html(), {});
+            self.$el.html(template);
         });
     },
     /* register event */
-    loadRegister: function(event){
-        var registerView = new UserRegisterView({ el: $("#body-div") });
+    loadRegister: function (event) {
+        var registerView = new UserRegisterView({el: $("#body-div")});
         // login_view.close();
         registerView.render();
     }
@@ -102,27 +112,27 @@ var UserLoginView = Backbone.View.extend({
 
 // backbone view for user login
 var UserRegisterView = Backbone.View.extend({
-    initialize: function(){
+    initialize: function () {
         this.render();
     },
-    render: function(template){
+    render: function (template) {
         // using underscore compile the #registerTemplate template
-        var template = _.template( $("#registerTemplate").html(), {} );
+        var template = _.template($("#registerTemplate").html(), {});
         // load compiled HTML template into the backbone "el"
-        this.$el.html( template );
+        this.$el.html(template);
     }, // add events for login button and logout button
     events: {
         "click .btn[id=register-btn1]": "doRegister"
     },
     /* Register event */
-    doRegister: function(event){
-        if($("#username").val() !== "" && $("#password").val() !== "" && $("#name").val() !== ""
-            && $("#listName").val() !== "" && $("#listDescription").val() !== ""){
+    doRegister: function (event) {
+        if ($("#username").val() !== "" && $("#password").val() !== "" && $("#name").val() !== ""
+            && $("#listName").val() !== "" && $("#listDescription").val() !== "") {
             var user = new UserModel();
             var self = this;
-            var userDetails =  {
-                username : $("#username").val(),
-                password:$("#password").val(),
+            var userDetails = {
+                username: $("#username").val(),
+                password: $("#password").val(),
                 name: $("#name").val(),
                 listName: $("#listName").val(),
                 listDescription: $("#listDescription").val()
@@ -131,7 +141,7 @@ var UserRegisterView = Backbone.View.extend({
                 success: function (user) {
                     if (user.attributes.isValid) {
                         alert("User Registered Successfully!");
-                        var login_view1 = new UserLoginView({ el: $("#body-div") });
+                        var login_view1 = new UserLoginView({el: $("#body-div")});
                         login_view1.render();
                     } else {
                         sessionStorage.isloggedIn = false;
@@ -149,25 +159,24 @@ var UserRegisterView = Backbone.View.extend({
 });
 
 // load the view when page is loaded and set the view inside the container
-var login_view = new UserLoginView({ el: $("#body-div") });
+var login_view = new UserLoginView({el: $("#body-div")});
 
 Backbone.View.prototype.close = function () {
     this.$el.empty();
     this.unbind();
 };
 
-
 var Item = Backbone.Model.extend({
     defaults: {
         itemId: "",
-        title:"",
+        title: "",
         url: "",
         price: "",
         priority: "",
         userId: ""
     },
     idAttribute: 'itemId',
-    urlRoot : 'http://localhost/wishList/index.php/ItemController/items',
+    urlRoot: 'http://localhost/wishList/index.php/ItemController/items',
     initialize: function () {
 
     }
@@ -175,56 +184,108 @@ var Item = Backbone.Model.extend({
 
 var ItemCollection = Backbone.Collection.extend({
     model: Item,
-    urlRoot : 'http://localhost/wishList/index.php/ItemController/items',
-    initialize: function () {
-
-    }
+    url: 'http://localhost/wishList/index.php/ItemController/items',
+    comparator: 'priority'
 });
 
-itemCollection = new ItemCollection();
+var itemList = new ItemCollection();
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var ItemView = Backbone.View.extend({
-    tagname: "li",
-    model: Item,
-    attributes: function () {
-        // Return model data
-        return {
-            //   class : this.model.get( 'item_class' ),
-            id: this.model.get('itemId')
-        };
-    },
+    tagName: "li",
+    template: _.template($('#itemTemplate').html()),
+    //model: Item,
+    // attributes: function () {
+    //     // Return model data
+    //     return {
+    //         id: this.model.get('itemId')
+    //     };
+    // },
     events: {
-        "click .remove-item": "removeItem",
-        'dblclick label': 'edit',
-        'keypress .edit': 'updateOnEnter',
+        "click .remove-item": "removeItem"//,
+        // 'dblclick label': 'edit',
+        // 'keypress .edit': 'updateOnEnter',
     },
     initialize: function () {
-        // this.render();
-        //this.listenTo(this.model, 'destroy', console.log("item added"));
+        this.listenTo(this.model, 'change', this.render);
+        this.listenTo(this.model, 'destroy', this.remove);
     },
     render: function () {
-        var template = _.template( $("#loggedTemplate").html(),{} );
-        self.$el.html(template);
-
-        var template = _.template($("#wishListTemplate").html());
-        var html = template(this.model.toJSON());
-        this.$el.html(html);
-        this.$input = this.$('.edit');
-        // this.$el.html('<li>' + this.model.get("name") + '</li>' + '<button> X </button>');
+        this.$el.html(this.template(this.model.toJSON()));
         return this;
-    }
+    },
+    removeItem: function (e) {
+        this.model.destroy();
+        // var element = $(e.currentTarget);
+        // var selectedItemId = element.attr('id');
+        // console.log(selectedItemId);
+        // var deletedItem = new Item({
+        //     id: selectedItemId
+        // });
+        // deletedItem.destroy({
+        //     success: function (model, respose, options) {
+        //         console.log("The model has deleted the server");
+        //         console.log(model);
+        //         // listCollection.fetch({
+        //         // 	data: $.param({
+        //         // 		id: 1,
+        //         // 	}),
+        //         // 	success: function (result) {
+        //         // 		// console.log(listCollection.length);
+        //         // 		// collectionOfItems = listCollection;
+        //         // 		var wishList = null;
+        //         // 		loginScreen.close();
+        //         // 		wishList = new itemListView({
+        //         // 			el: $("#view"),
+        //         // 			model: listCollection
+        //         // 		});
+        //
+        //         // 		wishList.render();
+        //
+        //         // 	}
+        //         // });
+        //         this.itemCollection.remove(deletedItem);
+        //         $("#view").html("");
+        //         console.log(this.listCollection);
+        //         // this.wishList.close();
+        //         this.wishList = new itemListView({
+        //             el: $("#view"),
+        //             model: this.listCollection
+        //         });
+        //
+        //
+        //         this.wishList.render();
+        //
+        //     },
+        //     error: function (model, xhr, options) {
+        //         console.log("Something went wrong while deleting the model");
+        //     }
+        // });
+
+        // this.model.trigger('delete', this.model);
+
+
+    }//,
+    // initialize: function () {
+    //     // this.render();
+    //     //this.listenTo(this.model, 'destroy', console.log("item added"));
+    // },
+    // render: function () {
+    //     var template = _.template($("#itemTemplate").html());
+    //     var html = template(this.model.toJSON());
+    //     this.$el.html(html);
+    //     return this;
+    // }
 });
 
-var itemListView = Backbone.View.extend({
-    model: ItemsCollection,
+var ItemListView = Backbone.View.extend({
+    model: ItemCollection,
     initialize: function () {
-        // this.render();
-        this.listenTo(listCollection, 'change', console.log("changed"));
+        // // this.render();
+        // this.listenTo(listCollection, 'change', console.log("changed"));
     },
 
     render: function () {
-        console.log('collection rending');
+        // console.log('collection rending');
         this.$el.html(); // lets render this view
 
         var self = this;
@@ -238,8 +299,6 @@ var itemListView = Backbone.View.extend({
             self.$el.append(m_itemView.$el);
             m_itemView.render(); // lets render the book
         }
-
-
         return this;
     },
 });
