@@ -11,7 +11,7 @@ require APPPATH . 'libraries/Format.php';
  *
  * @author Raveen Savinda Rathnayake
  */
-class UserController  extends REST_Controller
+class UserController extends REST_Controller
 {
 
     public function __construct()
@@ -33,19 +33,19 @@ class UserController  extends REST_Controller
         $this->load->view('HomeView');
     }
 
-    /**
-     * Loads the view for registering a user.
-     */
-    public function loadRegister()
-    {
-//        if ($this->session->userdata('username') != '') {
-//            $this->load->view('HomeView');
-//        } else {
-            $this->load->view('visitor/Header');
-            $this->load->view('visitor/Register');
-            $this->load->view('visitor/Footer');
-//        }
-    }
+//    /**
+//     * Loads the view for registering a user.
+//     */
+//    public function loadRegister()
+//    {
+////        if ($this->session->userdata('username') != '') {
+////            $this->load->view('HomeView');
+////        } else {
+//            $this->load->view('visitor/Header');
+//            $this->load->view('visitor/Register');
+//            $this->load->view('visitor/Footer');
+////        }
+//    }
 
     /**
      * REST api method used for user login. Sends the user data if found, otherwise sends isValid as false.
@@ -71,9 +71,13 @@ class UserController  extends REST_Controller
     public function user_post() {
         // adding new user to the database through user model
         $this->load->model('User');
-        $data = $this->User->register($this->post( 'username'), $this->post( 'password'),
+        $result = $this->User->register($this->post( 'username'), $this->post( 'password'),
             $this->post( 'name'), $this->post ( 'listName'), $this->post( 'listDescription'));
-        $this->response($data, REST_Controller::HTTP_CREATED);
+        if($result) {
+            $this->response(array('isValid' => true), REST_Controller::HTTP_CREATED);
+        } else {
+            $this->response(array('isValid' => false), REST_Controller::HTTP_OK);
+        }
     }
 
     /**

@@ -46,16 +46,14 @@ var UserLoginView = Backbone.View.extend({
         }
     }, // add events for login button and logout button
     events: {
-        // "click a[id=sign-in-btn1]": "render",TODO:check this
-        // "click a[id=sign-in-btn2]": "render",
-        "click a[id=logout-btn1]": "doLogout",
-        "click a[id=logout-btn2]": "doLogout",
-        "click .btn[id=userLoginBtn]": "doLogin"
-    },
+        "click .btn[id=logout-btn]": "doLogout",
+        "click .btn[id=login-btn]": "doLogin",
+        "click .btn[id=register-btn]": "loadRegister"
+},
     /* login event */
     doLogin: function(event){
         if($("#username").val() !== "" && $("#password").val() !== "" ){
-            var user = new UserModel({id: 1});
+            var user = new UserModel();
             var self = this;
             // The fetch will perform GET /user/1
             user.fetch({
@@ -69,7 +67,6 @@ var UserLoginView = Backbone.View.extend({
                         sessionStorage.username = user.attributes.result.username;
                         $("#loginName").text(user.attributes.result.username);
                     } else {
-                        console.log(user.attributes.result);
                         sessionStorage.isloggedIn = false;
                         alert("Invalid username and password!");
                     }
@@ -78,7 +75,7 @@ var UserLoginView = Backbone.View.extend({
                     console.log('error');
                 }
             })
-        }else{
+        } else {
             alert("Please fill the username and password!");
         }
     },
@@ -91,6 +88,60 @@ var UserLoginView = Backbone.View.extend({
             var template = _.template( $("#loginTemplate").html(), {} );
             self.$el.html( template );
         });
+    },
+    /* register event */
+    loadRegister: function(event){
+        var registerView = new UserRegisterView({ el: $("#body-div") });
+        // login_view.close();
+        registerView.render();
+    }
+});
+
+// backbone view for user login
+var UserRegisterView = Backbone.View.extend({
+    initialize: function(){
+        this.render();
+    },
+    render: function(template){
+        // using underscore compile the #registerTemplate template
+        var template = _.template( $("#registerTemplate").html(), {} );
+        // load compiled HTML template into the backbone "el"
+        this.$el.html( template );
+    }, // add events for login button and logout button
+    events: {
+        "click .btn[id=register-btn1]": "doRegister"
+    },
+    /* Register event */
+    doRegister: function(event){
+        if($("#username").val() !== "" && $("#password").val() !== "" && $("#name").val() !== ""
+            && $("#listName").val() !== "" && $("#listDescription").val() !== ""){
+            var user = new UserModel();
+            var self = this;
+            var userDetails =  {
+                username : $("#username").val(),
+                password:$("#password").val(),
+                name: $("#name").val(),
+                listName: $("#listName").val(),
+                listDescription: $("#listDescription").val()
+            };
+            user.save(userDetails, {
+                success: function (user) {
+                    if (user.attributes.isValid) {
+                        alert("User Registered Successfully!");
+                        var login_view1 = new UserLoginView({ el: $("#body-div") });
+                        login_view1.render();
+                    } else {
+                        sessionStorage.isloggedIn = false;
+                        alert("User registration failed!");
+                    }
+                },
+                error: function () {
+                    alert("User registration failed!");
+                }
+            })
+        } else {
+            alert("Please fill the fields!");
+        }
     }
 });
 
