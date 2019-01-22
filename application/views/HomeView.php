@@ -58,10 +58,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="<?php echo base_url(); ?>js/plugins.js"></script>
     <!-- select2 library script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
-    <!-- backbone js -->
-    <script src="<?php echo base_url(); ?>js/backbone-min.js"></script>
     <!-- underscore js -->
     <script src="<?php echo base_url(); ?>js/underscore-min.js"></script>
+    <!-- backbone js -->
+    <script src="<?php echo base_url(); ?>js/backbone-min.js"></script>
     <!-- all-js-end -->
 </head>
 <body class="home-2">
@@ -69,8 +69,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please upgrade your browser to improve
     your experience.</p>
 <![endif]-->
+<div id="body-div"></div>
 
-<!-- header-start -->
+<!-- footer-area-start -->
+<footer>
+    <!-- footer-bottom-start -->
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="row bt-2">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="copy-right-area">
+                        <p>Copyright ©<a href="https://www.raveen.me">Raveen S Rathnayake</a>. All Right Reserved.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer-bottom-end -->
+</footer>
+<!-- footer-area-end -->
+
+<script type="text/template" id="loginTemplate">
 <header>
     <!-- main-menu-area-start -->
     <div class="main-menu-area hidden-sm hidden-xs" id="header-sticky">
@@ -81,21 +104,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <nav>
                             <ul>
                                 <li class="active">
-                                    <a href="<?php echo site_url(); ?>/itemController/viewWishList">Home</a>
-                                </li>
-                                <?php if($this->session->userdata('username') != '') {  ?>
-                                    <li><a href="#">Hi <?php echo $this->session->userdata('username'); ?>
-                                            <i class="fa fa-angle-down"></i></a>
-                                        <div class="sub-menu sub-menu-2 ">
-                                            <ul>
-                                                <li><a id ="logout-btn" href="#">LogOut</a>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                <?php} else { ?>
-                                    <li><a id ="login-btn" href="#">Sign In</a>
-                                    </li>
-                                <?php } ?>
+                                <li><a href="<?php echo site_url(); ?>">Home</a></li>
+                                <li><a id ="sign-in-btn1" href="#">Sign In</a></li>
                             </ul>
                         </nav>
                     </div>
@@ -112,18 +122,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="mobile-menu">
                         <nav id="mobile-menu-active">
                             <ul id="nav">
-                                <li><a href="<?php echo site_url(); ?>/itemController/viewWishList">Home</a>
-                                </li>
-                                <?php if($this->session->userdata('username') != '') {  ?>
-                                    <li><a href="#">Hi <?php echo $this->session->userdata('username'); ?></a>
-                                        <ul>
-                                            <li><a id ="logout-btn2" href="#">LogOut</a>
-                                        </ul>
-                                    </li>
-                                <?php} else { ?>
-                                    <li><a id ="login-btn2" href="">Sign In</a>
-                                    </li>
-                                <?php } ?>
+                                <li><a href="<?php echo site_url(); ?>">Home</a></li>
+                                <li><a id ="sign-in-btn2" href="#">Sign In</a></li>
                             </ul>
                         </nav>
                     </div>
@@ -133,36 +133,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <!-- mobile-menu-area-end -->
 </header>
-<!-- header-area-end -->
-
-<div id="body-div">
-
-</div>
-
-<!-- footer-area-start -->
-<footer>
-    <!-- footer-bottom-start -->
-    <div class="footer-bottom">
-        <div class="container">
-            <div class="row bt-2">
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <div class="copy-right-area">
-                        <p>Copyright ©<a href="https://www.raveen.me">Raveen S Rathnayake</a>. All Right Reserved.</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                    <p><a href="<?php echo site_url(); ?>/userController/loadLogin">User Sign In</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- footer-bottom-end -->
-</footer>
-<!-- footer-area-end -->
-
-<script type="text/template" id="loginTemplate">
 <!-- breadcrumbs-area-start -->
 <div class="breadcrumbs-area mb-70">
     <div class="container">
@@ -185,13 +155,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="row">
             <div class="col-lg-12">
                 <div class="login-title text-center mb-30">
-                    <h2>USer Login</h2>
+                    <h2>User Login</h2>
                     <p>Enter Your Login Credentials</p>
                 </div>
             </div>
             <div class="col-lg-offset-3 col-lg-6 col-md-offset-3 col-md-6 col-sm-12 col-xs-12">
                 <div class="login-form">
-                    <form id="userLoginForm" action="">
+                    <form id="userLoginForm">
                         <div class="form-group">
                             <label for="username">Username<span>*</span></label>
                             <input type="text" class="form-control" id= "username" name="username"
@@ -219,6 +189,44 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </script>
 
 <script type="text/template" id="loggedTemplate">
+    <header>
+        <!-- main-menu-area-start -->
+        <div class="main-menu-area hidden-sm hidden-xs" id="header-sticky">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="menu-area">
+                            <nav>
+                                <ul>
+                                    <li class="active"><a href="<?php echo site_url(); ?>">Home</a></li>
+                                    <li><a id ="logout-btn1" href="#">LogOut</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- main-menu-area-end -->
+        <!-- mobile-menu-area-start -->
+        <div class="mobile-menu-area hidden-md hidden-lg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mobile-menu">
+                            <nav id="mobile-menu-active">
+                                <ul id="nav">
+                                    <li><a href="<?php echo site_url(); ?>">Home</a></li>
+                                    <li><a id ="logout-btn2" href="#">LogOut</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- mobile-menu-area-end -->
+    </header>
     <!-- breadcrumbs-area-start -->
     <div class="breadcrumbs-area mb-70">
         <div class="container">
@@ -226,7 +234,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="col-lg-12">
                     <div class="breadcrumbs-menu">
                         <ul>
-                            <li><a href="#">Home</a></li>
+                            <li><a href="<?php echo site_url(); ?>">Home</a></li>
+                            <li>Current User: <span id="loginName"></span></li>
                         </ul>
                     </div>
                 </div>

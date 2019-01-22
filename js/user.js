@@ -1,10 +1,7 @@
 // backbone model for user
-import * as Backbone from "./backbone-min";
-import * as _ from "./underscore-min";
-import {$} from "./backbone-min";
 
 var UserModel = Backbone.Model.extend({
-    urlRoot : 'http://localhost/wishList/index.php/api/userController/user',
+    urlRoot : 'http://localhost/wishList/index.php/UserController/user',
     defaults : {
         username : '',
         password : ''
@@ -36,7 +33,7 @@ var UserLoginView = Backbone.View.extend({
         this.render();
     },
     render: function(template){
-        if (sessionStorage.isloggedIn === "false"){
+        if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === "false"){
             // using underscore compile the #loginTemplate template
             var template = _.template( $("#loginTemplate").html(), {} );
             // load compiled HTML template into the backbone "el"
@@ -45,17 +42,18 @@ var UserLoginView = Backbone.View.extend({
             // using underscore compile the #loggedTemplate template
             var template = _.template( $("#loggedTemplate").html(),{} );
             // load compiled HTML template into the backbone "el"
-            this.$el.html( template );
+            this.$el.html(template);
         }
     }, // add events for login button and logout button
     events: {
-        "click a[id=login-btn]": "doLogin",
-        "click a[id=logout-btn]": "doLogout",
-        "click a[id=login-btn2]": "doLogin",
-        "click a[id=logout-btn2]": "doLogout"
+        // "click a[id=sign-in-btn1]": "render",TODO:check this
+        // "click a[id=sign-in-btn2]": "render",
+        "click a[id=logout-btn1]": "doLogout",
+        "click a[id=logout-btn2]": "doLogout",
+        "click .btn[id=userLoginBtn]": "doLogin"
     },
     /* login event */
-    doLogin: function( event ){
+    doLogin: function(event){
         if($("#username").val() !== "" && $("#password").val() !== "" ){
             var user = new UserModel({id: 1});
             var self = this;
@@ -63,16 +61,21 @@ var UserLoginView = Backbone.View.extend({
             user.fetch({
                 data: $.param({username: $("#username").val(), password:$("#password").val()}),
                 success: function (user) {
-                    if(user.attributes.isValid){
+                    if (user.attributes.isValid) {
                         var template = _.template( $("#loggedTemplate").html(),{} );
-                        self.$el.html( template );
+                        self.$el.html(template);
                         // store username and status in session storage
                         sessionStorage.isloggedIn = true;
                         sessionStorage.username = user.attributes.result.username;
-                    }else{
+                        $("#loginName").text(user.attributes.result.username);
+                    } else {
+                        console.log(user.attributes.result);
                         sessionStorage.isloggedIn = false;
                         alert("Invalid username and password!");
                     }
+                },
+                error: function () {
+                    console.log('error');
                 }
             })
         }else{
@@ -80,9 +83,9 @@ var UserLoginView = Backbone.View.extend({
         }
     },
     /* logout event*/
-    doLogout: function( event ){
+    doLogout: function(event){
         var self = this;
-        $.post( "http://localhost/wishList/index.php/api/userController/logout",function( data ) {
+        $.post( "http://localhost/wishList/index.php/userController/logout", function(data) {
             sessionStorage.isloggedIn = "false";
             sessionStorage.username = "";
             var template = _.template( $("#loginTemplate").html(), {} );
@@ -93,3 +96,8 @@ var UserLoginView = Backbone.View.extend({
 
 // load the view when page is loaded and set the view inside the container
 var login_view = new UserLoginView({ el: $("#body-div") });
+
+Backbone.View.prototype.close = function () {
+    this.$el.empty();
+    this.unbind();
+};
