@@ -35,23 +35,23 @@ class ItemController extends REST_Controller
         }
     }
 
-    /**
-     * Loads the view for wish list.
-     */
-    public function loadWishList() {
-        if ($this->session->userdata('username') != '') {
-            $this->load->view('user/WishList');
-        } else {
-            // if the user is not logged in redirect them to the login page
-            redirect(site_url() . '/userController/loadLogin');
-        }
-    }
+//    /**
+//     * Loads the view for wish list.
+//     */
+//    public function loadWishList() {
+//        if ($this->session->userdata('username') != '') {
+//            $this->load->view('user/WishList');
+//        } else {
+//            // if the user is not logged in redirect them to the login page
+//            redirect(site_url() . '/userController/loadLogin');
+//        }
+//    }
 
     /**
      * Controls getting all the categories from the database.
      * @return array|bool
      */
-    public function getAllItems()
+    public function items_get()
     {
         $this->load->model('Item');
         $result = $this->Book->getAllMainCategories();

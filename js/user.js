@@ -60,6 +60,8 @@ var UserLoginView = Backbone.View.extend({
                 data: $.param({username: $("#username").val(), password:$("#password").val()}),
                 success: function (user) {
                     if (user.attributes.isValid) {
+                        login_view.close();
+                        $("#logged-in-div").show();
                         var template = _.template( $("#loggedTemplate").html(),{} );
                         self.$el.html(template);
                         // store username and status in session storage
@@ -85,6 +87,7 @@ var UserLoginView = Backbone.View.extend({
         $.post( "http://localhost/wishList/index.php/userController/logout", function(data) {
             sessionStorage.isloggedIn = "false";
             sessionStorage.username = "";
+            $("#logged-in-div").hide();
             var template = _.template( $("#loginTemplate").html(), {} );
             self.$el.html( template );
         });
@@ -152,3 +155,91 @@ Backbone.View.prototype.close = function () {
     this.$el.empty();
     this.unbind();
 };
+
+
+var Item = Backbone.Model.extend({
+    defaults: {
+        itemId: "",
+        title:"",
+        url: "",
+        price: "",
+        priority: "",
+        userId: ""
+    },
+    idAttribute: 'itemId',
+    urlRoot : 'http://localhost/wishList/index.php/ItemController/items',
+    initialize: function () {
+
+    }
+});
+
+var ItemCollection = Backbone.Collection.extend({
+    model: Item,
+    urlRoot : 'http://localhost/wishList/index.php/ItemController/items',
+    initialize: function () {
+
+    }
+});
+
+itemCollection = new ItemCollection();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var ItemView = Backbone.View.extend({
+    tagname: "li",
+    model: Item,
+    attributes: function () {
+        // Return model data
+        return {
+            //   class : this.model.get( 'item_class' ),
+            id: this.model.get('itemId')
+        };
+    },
+    events: {
+        "click .remove-item": "removeItem",
+        'dblclick label': 'edit',
+        'keypress .edit': 'updateOnEnter',
+    },
+    initialize: function () {
+        // this.render();
+        //this.listenTo(this.model, 'destroy', console.log("item added"));
+    },
+    render: function () {
+        var template = _.template( $("#loggedTemplate").html(),{} );
+        self.$el.html(template);
+
+        var template = _.template($("#wishListTemplate").html());
+        var html = template(this.model.toJSON());
+        this.$el.html(html);
+        this.$input = this.$('.edit');
+        // this.$el.html('<li>' + this.model.get("name") + '</li>' + '<button> X </button>');
+        return this;
+    }
+});
+
+var itemListView = Backbone.View.extend({
+    model: ItemsCollection,
+    initialize: function () {
+        // this.render();
+        this.listenTo(listCollection, 'change', console.log("changed"));
+    },
+
+    render: function () {
+        console.log('collection rending');
+        this.$el.html(); // lets render this view
+
+        var self = this;
+        for (var i = 0; i < this.model.length; ++i) {
+            // lets create a book view to render
+            var m_itemView = new ItemView({
+                model: this.model.at(i)
+            });
+
+            // lets add this book view to this list view
+            self.$el.append(m_itemView.$el);
+            m_itemView.render(); // lets render the book
+        }
+
+
+        return this;
+    },
+});
