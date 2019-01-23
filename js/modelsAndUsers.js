@@ -1,4 +1,4 @@
-// backbone model for user
+/* backbone model for user*/
 var Item = Backbone.Model.extend({
     defaults: {
         title: "",
@@ -9,17 +9,16 @@ var Item = Backbone.Model.extend({
     },
     idAttribute: 'itemId',
     urlRoot: 'http://localhost/wishList/index.php/ItemController/items',
-    initialize: function () {
-
-    }
 });
 
+/* backbone collection for items*/
 var ItemCollection = Backbone.Collection.extend({
     model: Item,
     url: 'http://localhost/wishList/index.php/ItemController/items',
     comparator: 'priority'
 });
 
+/* creating an item collection*/
 var itemList = new ItemCollection();
 
 var UserModel = Backbone.Model.extend({
@@ -30,32 +29,13 @@ var UserModel = Backbone.Model.extend({
     }
 });
 
-// /*
-// * Adding a new user to the db using rest api and backbone.
-// * */
-// var addUser = function(username, password){
-//     // create a instance from user model
-//     var user = new UserModel();
-//     var userInfo = {
-//         username : username,
-//         password : password
-//     };
-// // Since we haven't set an 'id' the server will call POST /user with a payload of {username:'admin', password:'1234'}
-// // The server should save the data and return a response containing the new 'id'
-//     user.save(userInfo, {
-//         success : function(user) {
-//             alert("User registered successfully");
-//         }
-//     })
-// };
-
+/* backbone view for an item*/
 var ItemView = Backbone.View.extend({
-    //tagName: "tr",
     template: _.template($('#itemTemplate').html()),
     events: {
         "click .remove-item": "removeItem",
-        'dblclick label': 'edit'//,
-        // 'keypress .edit': 'updateOnEnter',
+        "dblclick label": "edit",
+        "keypress .edit": "updateAfterEnter"
     },
     initialize: function () {
         this.listenTo(this.model, 'change', this.render);
@@ -70,21 +50,41 @@ var ItemView = Backbone.View.extend({
         this.$el.addClass("editing");
         this.input.focus();
     },
+    close: function() {
+        var title = this.input[0].value;
+        var url = this.input[1].value;
+        var price = this.input[2].value;
+        var priority = this.input[3].value;
+        if (title !== "" && url !== "" && price !== "" && priority !== "") {
+            this.model.save({
+                title: title,
+                url: url,
+                price: price,
+                priority: priority,
+            });
+            this.$el.removeClass("editing");
+        } else {
+            alert("Please fill all the fields to edit an item!");
+        }
+    },
+    updateAfterEnter: function(e) {
+        if (e.keyCode == 13) this.close();
+    },
     removeItem: function (e) {
         this.model.destroy();
     }
-
 });
 
-// backbone view for user login
+/* backbone view for user login*/
 var UserLoginView = Backbone.View.extend({
     initialize: function () {
         this.listenTo(itemList, "add", this.addOne);
+        this.listenTo(itemList, "change", this.updateItem);
         this.listenTo(itemList, "sort", this.addAll);
         this.render();
     },
     render: function () {
-        if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === false) {
+        if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === "false") {
             // using underscore compile the #loginTemplate template
             var template = _.template($("#loginTemplate").html(), {});
             // load compiled HTML template into the backbone "el"
@@ -95,19 +95,18 @@ var UserLoginView = Backbone.View.extend({
             // load compiled HTML template into the backbone "el"
             this.$el.html(template);
             $("#loginName").text(sessionStorage.username);
-            // TODO: check here
-            // itemList.fetch({
-            //     data: $.param({
-            //         userId: sessionStorage.userId
-            //     }),
-            //     success: function (result) {
-            //         var wishList = new ItemListView({
-            //             el: $("#wishList"),
-            //             model: itemList
-            //         });
-            //         wishList.render();
-            //     }
-            // });
+            itemList.fetch({
+                data: $.param({
+                    userId: sessionStorage.userId,
+                }),
+                success: function (result) {
+                    console.log(result);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+            itemList.sort();
         }
     }, // add events for login button and logout button
     events: {
@@ -116,7 +115,7 @@ var UserLoginView = Backbone.View.extend({
         "click .btn[id=register-btn]": "loadRegister",
         "click .btn[id=add-item-btn]": "createItem"
     },
-    /* login event */
+    /* Login event */
     doLogin: function (event) {
         if ($("#username").val() !== "" && $("#password").val() !== "") {
             var user = new UserModel();
@@ -147,7 +146,7 @@ var UserLoginView = Backbone.View.extend({
                         sessionStorage.userId = user.attributes.result[0].userId;
                         $("#loginName").text(user.attributes.result[0].username);
                     } else {
-                        sessionStorage.isloggedIn = false;
+                        sessionStorage.isloggedIn = "false";
                         alert("Invalid username and password!");
                     }
                 },
@@ -159,11 +158,11 @@ var UserLoginView = Backbone.View.extend({
             alert("Please fill the username and password!");
         }
     },
-    /* logout event*/
+    /* Logout event*/
     doLogout: function (event) {
         var self = this;
         $.post("http://localhost/wishList/index.php/userController/logout", function (data) {
-            sessionStorage.isloggedIn = false;
+            sessionStorage.isloggedIn = "false";
             sessionStorage.username = "";
             var template = _.template($("#loginTemplate").html(), {});
             self.$el.html(template);
@@ -174,9 +173,14 @@ var UserLoginView = Backbone.View.extend({
         var view = new ItemView({model: item});
         this.$("#wishList").append(view.render().el);
     },
+    /* Add all items */
     addAll: function() {
         $("#wishList").empty();
         itemList.each(this.addOne, this);
+    },
+    /* Update an item */
+    updateItem: function() {
+        itemList.sort();
     },
     /* Create an item */
     createItem: function(event) {
@@ -200,7 +204,7 @@ var UserLoginView = Backbone.View.extend({
             alert("Please fill all the fields required to add an item!");
         }
     },
-    /* register event */
+    /* Load register view */
     loadRegister: function (event) {
         var registerView = new UserRegisterView({el: $("#body-div")});
         // login_view.close();
@@ -208,7 +212,7 @@ var UserLoginView = Backbone.View.extend({
     }
 });
 
-// backbone view for user login
+/* backbone view for user login*/
 var UserRegisterView = Backbone.View.extend({
     initialize: function () {
         this.render();

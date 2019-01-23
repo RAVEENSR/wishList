@@ -132,9 +132,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<%= title %>" aria-expanded="true" aria-controls="collapseOne">
                         <%= title %>
                     </button>
-                    <button type="button" class="remove-item close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn btn-danger remove-item float-right">Delete</button>
                 </h5>
             </div>
             <div id="collapse<%= title %>" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
@@ -229,7 +227,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <!-- user-login-area-end -->
 </script>
 <!-- user.js -->
-<script type="text/javascript" src="<?php echo base_url(); ?>js/user.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>js/modelsAndUsers.js"></script>
 
 </body>
 </html>

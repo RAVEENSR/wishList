@@ -40,18 +40,17 @@ class ItemController extends REST_Controller
         $userId = $this->get('userId');
         $this->load->model('Item');
         $result = $this->Item->getAllItems($userId);
-        echo json_encode($result);//TODO: check this to use the correct way
-//        if ($result) {
-//            $this->response (array('isValid' => true, 'result' => $result), REST_Controller::HTTP_OK);
-//        } else {
-//            $this->response(array('isValid' => false), REST_Controller::HTTP_NOT_FOUND);
-//        }
+        if ($result) {
+            $this->response ($result, REST_Controller::HTTP_OK);
+        } else {
+            $this->response($result, REST_Controller::HTTP_NOT_FOUND);
+        }
     }
 
     /**
      * REST api method used to remove an item from a users's wish list.
      * Sends isValid as false if not successful.
-     * @param $itemId integer id of the iteme to be deleted
+     * @param $itemId integer id of the item to be deleted
      */
     public function items_delete($itemId)
     {
@@ -67,14 +66,14 @@ class ItemController extends REST_Controller
     /**
      * REST api method used to update an item from a users's wish list.
      * Sends isValid as false if not successful.
+     * @param $itemId integer id of the item needed to be update
      */
-    public function items_put()
+    public function items_put($itemId)
     {
-        $itemId = (int)$this->get('itemId');
-        $title = $this->get('title');
-        $url = $this->get('url');
-        $price = number_format((float)$this->get('price'), 2, '.', '');
-        $priority = (int)$this->get('priority');
+        $title = $this->put('title');
+        $url = $this->put('url');
+        $price = number_format((float)$this->put('price'), 2, '.', '');
+        $priority = (int)$this->put('priority');
         $this->load->model('Item');
         $result = $this->Item->updateItem($itemId, array('title' => $title, 'url' => $url, 'price' => $price,
             'priority' => $priority));
@@ -92,7 +91,6 @@ class ItemController extends REST_Controller
     public function items_post()
     {
         echo "asda";
-        echo $this->post('userId');
         $userId = (int)$this->post('userId');
         $title = $this->post('title');
         $url = $this->post('url');
