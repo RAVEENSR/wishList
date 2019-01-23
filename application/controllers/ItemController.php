@@ -33,7 +33,7 @@ class ItemController extends REST_Controller
 
     /**
      * REST api method used to get wish list items of a user.
-     * Sends isValid as false.
+     * Sends isValid as false if not successful.
      */
     public function items_get()
     {
@@ -50,7 +50,7 @@ class ItemController extends REST_Controller
 
     /**
      * REST api method used to remove an item from a users's wish list.
-     * Sends isValid as false.
+     * Sends isValid as false if not successful.
      * @param $itemId integer id of the iteme to be deleted
      */
     public function items_delete($itemId)
@@ -65,19 +65,42 @@ class ItemController extends REST_Controller
     }
 
     /**
-     * REST api method used to remove an item from a users's wish list.
-     * Sends isValid as false.
+     * REST api method used to update an item from a users's wish list.
+     * Sends isValid as false if not successful.
      */
     public function items_put()
     {
-        $itemId = $this->get('itemId');
+        $itemId = (int)$this->get('itemId');
         $title = $this->get('title');
         $url = $this->get('url');
-        $price = $this->get('price');
-        $priority = $this->get('priority');
+        $price = number_format((float)$this->get('price'), 2, '.', '');
+        $priority = (int)$this->get('priority');
         $this->load->model('Item');
         $result = $this->Item->updateItem($itemId, array('title' => $title, 'url' => $url, 'price' => $price,
             'priority' => $priority));
+        if ($result) {
+            $this->response (array('isValid' => true), REST_Controller::HTTP_OK);
+        } else {
+            $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * REST api method used to add an item to a users's wish list.
+     * Sends isValid as false if not successful.
+     */
+    public function items_post()
+    {
+        echo "asda";
+        echo $this->post('userId');
+        $userId = (int)$this->post('userId');
+        $title = $this->post('title');
+        $url = $this->post('url');
+        $price = number_format((float)$this->post('price'), 2, '.', '');
+        $priority = (int)$this->post('priority');
+        $this->load->model('Item');
+        $result = $this->Item->addItem(array('title' => $title, 'url' => $url, 'price' => $price,
+            'priority' => $priority, 'userId' => $userId));
         if ($result) {
             $this->response (array('isValid' => true), REST_Controller::HTTP_OK);
         } else {
@@ -102,85 +125,6 @@ class ItemController extends REST_Controller
             $flag = TRUE;
         }
         echo json_encode($flag);
-    }
-
-    /**
-     * Controls getting data(item details) from view and adding the item to the user wish list.
-     * @return String
-     */
-    public function addItemToUserList()
-    {
-        if ($this->upload->do_upload("imgURL")) {
-            $data = array('upload_data' => $this->upload->data());
-            $image = $data['upload_data']['file_name'];
-
-            $title = $this->input->post('title');
-            $author = $this->input->post('author');
-            $isbn = $this->input->post('isbn');
-            $mainCategory = $this->input->post('mainCategorySelect');
-            $subCategory = $this->input->post('subCategorySelect');
-            $publisher = $this->input->post('publisher');
-            $edition = $this->input->post('edition');
-            $price = $this->input->post('price');
-            $quantity = $this->input->post('quantity');
-            $description = $this->input->post('description');
-            $img = 'img/product/' . $image;
-
-            $this->load->model('Item');
-            // check whether the entered author name exists. If not add the author.
-            if (!$this->Book->isAuthorAvailable($author)) {
-                $this->Book->addAuthor(array('authorName' => $author));
-            }
-
-            // check whether the entered main category exists. If not add the main category.
-            if (!$this->Book->isCategoryAvailable($mainCategory)) {
-                $categoryData = array();
-                array_push($categoryData, array('categoryTitle' => $mainCategory));
-                $this->Book->createBookCategories($categoryData);
-            }
-
-            // check whether the entered sub category exists. If not add the sub category.
-            if (!$this->Book->isSubCategoryAvailableInMainCategory($subCategory, $mainCategory)) {
-                $subCategoryData = array();
-                array_push($subCategoryData, array('subCategoryTitle' => $subCategory, 'categoryTitle' => 
-                    $mainCategory));
-                $this->Book->createBookSubCategories($subCategoryData);
-            }
-
-            $newEntry = array('isbnNo' => $isbn,
-                'title' => $title,
-                'categoryTitle' => $mainCategory,
-                'subCategoryTitle' => $subCategory,
-                'authorName' => $author,
-                'publisherName' => $publisher,
-                'price' => number_format((float)$price, 2, '.', ''),
-                'availableCopies' => $quantity,
-                'description' => $description,
-                'edition' => $edition,
-                'imageURL' => $img);
-            $result = $this->Book->addBook($newEntry);
-            $data = array();
-            // flag determines the validity
-            $flag = false;
-            if ($result) {
-                $flag = TRUE;
-            }
-            // get updated authors
-            $result2 = $this->Book->getAllAuthors();
-            // if results not found false will be returned
-            $authors = array();
-            if (!$result2) {
-                $flag = false;
-            } else {
-                foreach ($result2 as $row) {
-                    // row is an object, attributes are columns in the table
-                    $authors[] = $row->authorName;
-                }
-            }
-            $data['result'] = $flag;
-            $data['authors'] = $authors;
-            echo json_encode($data);
-        }
     }
 }
 

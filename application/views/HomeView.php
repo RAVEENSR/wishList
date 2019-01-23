@@ -50,7 +50,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </nav>
     <!-- user-login-area-start -->
     <div class="container">
-        <div class="row">
             <div class="col-lg-12">
                 <div class="text-center">
                     <h2>User Login Required</h2>
@@ -65,7 +64,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <nav class="navbar navbar-light bg-light justify-content-between">
         <a class="navbar-brand" href="#">Wish List Creator</a>
         <form class="form-inline">
-            <label style="margin-right: 24px;margin-top: 4px;">Hi <span id="loginName"></span></label>
+            <label style="margin-right: 24px;margin-top: 4px;"><span>Hi &nbsp</span><span id="loginName"></span></label>
             <button type="button" class="btn btn-primary" id="logout-btn">Logout</button>
         </form>
     </nav>
@@ -79,7 +78,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <div id="wishList" class="text-center"></div>
+                <div class="text-center">
+                    <ul id="wishList"></ul>
+                </div>
             </div>
         </div>
     </div>

@@ -1,4 +1,26 @@
 // backbone model for user
+var Item = Backbone.Model.extend({
+    defaults: {
+        title: "",
+        url: "",
+        price: "",
+        priority: "",
+        userId: ""
+    },
+    idAttribute: 'itemId',
+    urlRoot: 'http://localhost/wishList/index.php/ItemController/items',
+    initialize: function () {
+
+    }
+});
+
+var ItemCollection = Backbone.Collection.extend({
+    model: Item,
+    url: 'http://localhost/wishList/index.php/ItemController/items',
+    comparator: 'priority'
+});
+
+var itemList = new ItemCollection();
 
 var UserModel = Backbone.Model.extend({
     urlRoot: 'http://localhost/wishList/index.php/UserController/user',
@@ -27,13 +49,68 @@ var UserModel = Backbone.Model.extend({
 //     })
 // };
 
+var ItemView = Backbone.View.extend({
+    tagName: "li",
+    template: _.template($('#itemTemplate').html()),
+    //model: Item,
+    // attributes: function () {
+    //     // Return model data
+    //     return {
+    //         id: this.model.get('itemId')
+    //     };
+    // },
+    events: {
+        "click .remove-item": "removeItem"//,
+        // 'dblclick label': 'edit',
+        // 'keypress .edit': 'updateOnEnter',
+    },
+    initialize: function () {
+        this.listenTo(this.model, 'change', this.render);
+        this.listenTo(this.model, 'destroy', this.remove);
+    },
+    render: function () {
+        this.$el.html(this.template(this.model.toJSON()));
+        return this;
+    },
+    removeItem: function (e) {
+        this.model.destroy();
+    }
+
+});
+
+var ItemListView = Backbone.View.extend({
+    model: ItemCollection,
+    initialize: function () {
+        // // this.render();
+        // this.listenTo(listCollection, 'change', console.log("changed"));
+    },
+    render: function () {
+        // console.log('collection rending');
+        this.$el.html(); // lets render this view
+
+        var self = this;
+        for (var i = 0; i < this.model.length; ++i) {
+            // lets create a book view to render
+            var m_itemView = new ItemView({
+                model: this.model.at(i)
+            });
+
+            // lets add this book view to this list view
+            self.$el.append(m_itemView.$el);
+            m_itemView.render(); // lets render the book
+        }
+        return this;
+    },
+});
+
 // backbone view for user login
 var UserLoginView = Backbone.View.extend({
     initialize: function () {
+        this.listenTo(itemList, "add", this.addOne);
         this.render();
     },
-    render: function (template) {
-        if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === "false") {
+    render: function () {
+        if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === false) {
             // using underscore compile the #loginTemplate template
             var template = _.template($("#loginTemplate").html(), {});
             // load compiled HTML template into the backbone "el"
@@ -43,12 +120,26 @@ var UserLoginView = Backbone.View.extend({
             var template = _.template($("#loggedTemplate").html(), {});
             // load compiled HTML template into the backbone "el"
             this.$el.html(template);
+            $("#loginName").text(sessionStorage.username);
+            // itemList.fetch({
+            //     data: $.param({
+            //         userId: sessionStorage.userId
+            //     }),
+            //     success: function (result) {
+            //         var wishList = new ItemListView({
+            //             el: $("#wishList"),
+            //             model: itemList
+            //         });
+            //         wishList.render();
+            //     }
+            // });
         }
     }, // add events for login button and logout button
     events: {
         "click .btn[id=logout-btn]": "doLogout",
         "click .btn[id=login-btn]": "doLogin",
-        "click .btn[id=register-btn]": "loadRegister"
+        "click .btn[id=register-btn]": "loadRegister",
+        "click .btn[id=add-item-btn]": "createItem"
     },
     /* login event */
     doLogin: function (event) {
@@ -66,19 +157,20 @@ var UserLoginView = Backbone.View.extend({
                         itemList.fetch({
                             data: $.param({
                                 userId: user.attributes.result[0].userId,
-                            }),
-                            success: function (result) {
-                                var wishList = new ItemListView({
-                                    el: $("#wishList"),
-                                    model: itemList
-                                });
-                                wishList.render();
-                            }
+                            })//,
+                            // success: function (result) {
+                            //     var wishList = new ItemListView({
+                            //         el: $("#wishList"),
+                            //         model: itemList
+                            //     });
+                            //     wishList.render();
+                            // }
                         });
                         // store username and status in session storage
                         sessionStorage.isloggedIn = true;
-                        sessionStorage.username = user.attributes.result.username;
-                        $("#loginName").text(user.attributes.result.username);
+                        sessionStorage.username = user.attributes.result[0].username;
+                        sessionStorage.userId = user.attributes.result[0].userId;
+                        $("#loginName").text(user.attributes.result[0].username);
                     } else {
                         sessionStorage.isloggedIn = false;
                         alert("Invalid username and password!");
@@ -96,11 +188,38 @@ var UserLoginView = Backbone.View.extend({
     doLogout: function (event) {
         var self = this;
         $.post("http://localhost/wishList/index.php/userController/logout", function (data) {
-            sessionStorage.isloggedIn = "false";
+            sessionStorage.isloggedIn = false;
             sessionStorage.username = "";
             var template = _.template($("#loginTemplate").html(), {});
             self.$el.html(template);
         });
+    },
+    /* Add an item */
+    addOne: function (item) {
+        var view = new ItemView({model: item});
+        this.$("#wishList").append(view.render().el);
+    },
+    /* Create an item */
+    createItem: function(event) {
+        var newTitle = $("#add-title");
+        var newUrl = $("#add-url");
+        var newPrice = $("#add-price");
+        var newPriority = $("#add-priority");
+        if (newTitle.val() !== "" && newUrl.val() !== "" && newPrice.val() !== "" && newPriority.val() !== "") {
+            itemList.create({
+                title: newTitle.val(),
+                url: newUrl.val(),
+                price: newPrice.val(),
+                priority: newPriority.val(),
+                userId: sessionStorage.userId
+            });
+            newTitle.val("");
+            newUrl.val("");
+            newPrice.val("");
+            newPriority.val("");
+        } else {
+            alert("Please fill all the fields required to add an item!");
+        }
     },
     /* register event */
     loadRegister: function (event) {
@@ -165,140 +284,3 @@ Backbone.View.prototype.close = function () {
     this.$el.empty();
     this.unbind();
 };
-
-var Item = Backbone.Model.extend({
-    defaults: {
-        itemId: "",
-        title: "",
-        url: "",
-        price: "",
-        priority: "",
-        userId: ""
-    },
-    idAttribute: 'itemId',
-    urlRoot: 'http://localhost/wishList/index.php/ItemController/items',
-    initialize: function () {
-
-    }
-});
-
-var ItemCollection = Backbone.Collection.extend({
-    model: Item,
-    url: 'http://localhost/wishList/index.php/ItemController/items',
-    comparator: 'priority'
-});
-
-var itemList = new ItemCollection();
-
-var ItemView = Backbone.View.extend({
-    tagName: "li",
-    template: _.template($('#itemTemplate').html()),
-    //model: Item,
-    // attributes: function () {
-    //     // Return model data
-    //     return {
-    //         id: this.model.get('itemId')
-    //     };
-    // },
-    events: {
-        "click .remove-item": "removeItem"//,
-        // 'dblclick label': 'edit',
-        // 'keypress .edit': 'updateOnEnter',
-    },
-    initialize: function () {
-        this.listenTo(this.model, 'change', this.render);
-        this.listenTo(this.model, 'destroy', this.remove);
-    },
-    render: function () {
-        this.$el.html(this.template(this.model.toJSON()));
-        return this;
-    },
-    removeItem: function (e) {
-        this.model.destroy();
-        // var element = $(e.currentTarget);
-        // var selectedItemId = element.attr('id');
-        // console.log(selectedItemId);
-        // var deletedItem = new Item({
-        //     id: selectedItemId
-        // });
-        // deletedItem.destroy({
-        //     success: function (model, respose, options) {
-        //         console.log("The model has deleted the server");
-        //         console.log(model);
-        //         // listCollection.fetch({
-        //         // 	data: $.param({
-        //         // 		id: 1,
-        //         // 	}),
-        //         // 	success: function (result) {
-        //         // 		// console.log(listCollection.length);
-        //         // 		// collectionOfItems = listCollection;
-        //         // 		var wishList = null;
-        //         // 		loginScreen.close();
-        //         // 		wishList = new itemListView({
-        //         // 			el: $("#view"),
-        //         // 			model: listCollection
-        //         // 		});
-        //
-        //         // 		wishList.render();
-        //
-        //         // 	}
-        //         // });
-        //         this.itemCollection.remove(deletedItem);
-        //         $("#view").html("");
-        //         console.log(this.listCollection);
-        //         // this.wishList.close();
-        //         this.wishList = new itemListView({
-        //             el: $("#view"),
-        //             model: this.listCollection
-        //         });
-        //
-        //
-        //         this.wishList.render();
-        //
-        //     },
-        //     error: function (model, xhr, options) {
-        //         console.log("Something went wrong while deleting the model");
-        //     }
-        // });
-
-        // this.model.trigger('delete', this.model);
-
-
-    }//,
-    // initialize: function () {
-    //     // this.render();
-    //     //this.listenTo(this.model, 'destroy', console.log("item added"));
-    // },
-    // render: function () {
-    //     var template = _.template($("#itemTemplate").html());
-    //     var html = template(this.model.toJSON());
-    //     this.$el.html(html);
-    //     return this;
-    // }
-});
-
-var ItemListView = Backbone.View.extend({
-    model: ItemCollection,
-    initialize: function () {
-        // // this.render();
-        // this.listenTo(listCollection, 'change', console.log("changed"));
-    },
-
-    render: function () {
-        // console.log('collection rending');
-        this.$el.html(); // lets render this view
-
-        var self = this;
-        for (var i = 0; i < this.model.length; ++i) {
-            // lets create a book view to render
-            var m_itemView = new ItemView({
-                model: this.model.at(i)
-            });
-
-            // lets add this book view to this list view
-            self.$el.append(m_itemView.$el);
-            m_itemView.render(); // lets render the book
-        }
-        return this;
-    },
-});
