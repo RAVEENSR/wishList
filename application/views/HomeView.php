@@ -12,6 +12,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <!-- latest-bootstrap-version-4 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
           integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <!-- style css -->
+    <link rel="stylesheet" href="<?php echo base_url(); ?>css/style.css">
 
     <!-- all-js-start -->
     <!-- latest-jquery -->
@@ -77,14 +79,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-12">
-                <div class="text-center">
-                    <ul id="wishList"></ul>
-                </div>
+            <div class="col-lg-3 col-md-3 col-sm-5 col-xs-12"></div>
+            <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12">
+                    <div  id="wishList"></div>
             </div>
+            <div class="col-lg-3 col-md-3 col-sm-5 col-xs-12"></div>
         </div>
     </div>
-    <div class="container ">
+    <div class="container pt-40">
         <div class="row">
             <div class="col-lg-12">
                 <div class="text-center">
@@ -121,63 +123,59 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
-    <div class="container ">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="text-center">
-                    <h2>Edit Wish List Item</h2>
+</script>
+<script id="itemTemplate" type="text/html">
+    <div class="accordion" id="accordionExample">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0 text-center">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<%= title %>" aria-expanded="true" aria-controls="collapseOne">
+                        <%= title %>
+                    </button>
+                    <button type="button" class="remove-item close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapse<%= title %>" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                    <div class="form-group form-inline">
+                        <label>Title:&emsp;</label>
+                        <div class="view">
+                            <label><%- title %></label>
+                        </div>
+                    </div>
+                    <input class="edit name" value="<%- title %>" type="text">
+                    <div class="form-group form-inline">
+                        <label>URL:&emsp;</label>
+                        <div class="view">
+                            <label><%- url %></label>
+                        </div>
+                    </div>
+                    <input class="edit url" value="<%- url %>" type="text">
+                    <div class="form-group form-inline">
+                        <label>Price(LKR):&emsp;</label>
+                        <div class="view">
+                            <label><%- price %></label>
+                        </div>
+                    </div>
+                    <input type="number" step="0.01" min="0" class="edit price" name="price" value="<%- price %>"
+                           placeholder="Ex: 10.00" required>
+                    <div class="form-group form-inline">
+                        <label>Priority:&emsp;</label>
+                        <div class="view">
+                            <label><%- priority %></label>
+                        </div>
+                    </div>
+                    <select class="edit priority" value="<%- priority %>">
+                        <option value=1>Must Have(1)</option>
+                        <option value=2>Would be nice to have(2)</option>
+                        <option value=3>If you can(3)</option>
+                    </select>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <form>
-                    <div class="form-group">
-                        <label for="edit">Type the id to Delete/Edit*</label>
-                        <input type="text" class="form-control" id="item-id" placeholder="Item Id" required>
-                    </div>
-                    <button type="button" class="btn btn-primary" id="delete-btn">Delete</button>
-                    <button type="button" class="btn btn-primary" id="edit-btn">Edit</button>
-                </form>
-            </div>
-        </div>
-        <div id="editBox" style="display: none;" class="row">
-            <div class="col-lg-12">
-                <form>
-                    <input type="hidden" name="itemId" id="itemId" />
-                    <div class="form-group">
-                        <label for="title">Title*</label>
-                        <input type="text" class="form-control" id="title" placeholder="Title" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="url">URL*</label>
-                        <input type="text" class="form-control" id="url" placeholder="URL">
-                    </div>
-                    <div class="form-group">
-                        <label for="price">Price (LKR)*</label>
-                        <input type="number" step="0.01" min="0" class="form-control" id="price" name="price"
-                               placeholder="Ex: 10.00" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="priority">Priority<span>*</span></label>
-                        <select class="form-control" id="priority">
-                            <option value=1>Must Have(1)</option>
-                            <option value=2>Would be nice to have(2)</option>
-                            <option value=3>If you can(3)</option>
-                        </select>
-                    </div>
-                    <button type="button" class="btn btn-primary" id="edit-item-btn">Add Item</button>
-                </form>
-            </div>
-        </div>
     </div>
-</script>
-<script id="itemTemplate" type="text/html">
-    <%= title %>
-    <%= url %>
-    <%= price %>
-    <%= priority %>
-    <button class="remove-item" id= <%= userId %> > X </button>
 </script>
 <script type="text/template" id="registerTemplate">
     <nav class="navbar navbar-light bg-light justify-content-between">

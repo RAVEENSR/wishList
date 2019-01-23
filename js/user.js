@@ -50,18 +50,11 @@ var UserModel = Backbone.Model.extend({
 // };
 
 var ItemView = Backbone.View.extend({
-    tagName: "li",
+    //tagName: "tr",
     template: _.template($('#itemTemplate').html()),
-    //model: Item,
-    // attributes: function () {
-    //     // Return model data
-    //     return {
-    //         id: this.model.get('itemId')
-    //     };
-    // },
     events: {
-        "click .remove-item": "removeItem"//,
-        // 'dblclick label': 'edit',
+        "click .remove-item": "removeItem",
+        'dblclick label': 'edit'//,
         // 'keypress .edit': 'updateOnEnter',
     },
     initialize: function () {
@@ -70,7 +63,12 @@ var ItemView = Backbone.View.extend({
     },
     render: function () {
         this.$el.html(this.template(this.model.toJSON()));
+        this.input = this.$(".edit");
         return this;
+    },
+    edit: function() {
+        this.$el.addClass("editing");
+        this.input.focus();
     },
     removeItem: function (e) {
         this.model.destroy();
@@ -78,35 +76,11 @@ var ItemView = Backbone.View.extend({
 
 });
 
-var ItemListView = Backbone.View.extend({
-    model: ItemCollection,
-    initialize: function () {
-        // // this.render();
-        // this.listenTo(listCollection, 'change', console.log("changed"));
-    },
-    render: function () {
-        // console.log('collection rending');
-        this.$el.html(); // lets render this view
-
-        var self = this;
-        for (var i = 0; i < this.model.length; ++i) {
-            // lets create a book view to render
-            var m_itemView = new ItemView({
-                model: this.model.at(i)
-            });
-
-            // lets add this book view to this list view
-            self.$el.append(m_itemView.$el);
-            m_itemView.render(); // lets render the book
-        }
-        return this;
-    },
-});
-
 // backbone view for user login
 var UserLoginView = Backbone.View.extend({
     initialize: function () {
         this.listenTo(itemList, "add", this.addOne);
+        this.listenTo(itemList, "sort", this.addAll);
         this.render();
     },
     render: function () {
@@ -121,6 +95,7 @@ var UserLoginView = Backbone.View.extend({
             // load compiled HTML template into the backbone "el"
             this.$el.html(template);
             $("#loginName").text(sessionStorage.username);
+            // TODO: check here
             // itemList.fetch({
             //     data: $.param({
             //         userId: sessionStorage.userId
@@ -157,15 +132,15 @@ var UserLoginView = Backbone.View.extend({
                         itemList.fetch({
                             data: $.param({
                                 userId: user.attributes.result[0].userId,
-                            })//,
-                            // success: function (result) {
-                            //     var wishList = new ItemListView({
-                            //         el: $("#wishList"),
-                            //         model: itemList
-                            //     });
-                            //     wishList.render();
-                            // }
+                            }),
+                            success: function (result) {
+                                console.log(result);
+                            },
+                            error: function (error) {
+                                console.log(error);
+                            }
                         });
+                        itemList.sort();
                         // store username and status in session storage
                         sessionStorage.isloggedIn = true;
                         sessionStorage.username = user.attributes.result[0].username;
@@ -176,8 +151,8 @@ var UserLoginView = Backbone.View.extend({
                         alert("Invalid username and password!");
                     }
                 },
-                error: function () {
-                    console.log('error');
+                error: function (error) {
+                    console.log(error);
                 }
             })
         } else {
@@ -198,6 +173,10 @@ var UserLoginView = Backbone.View.extend({
     addOne: function (item) {
         var view = new ItemView({model: item});
         this.$("#wishList").append(view.render().el);
+    },
+    addAll: function() {
+        $("#wishList").empty();
+        itemList.each(this.addOne, this);
     },
     /* Create an item */
     createItem: function(event) {
