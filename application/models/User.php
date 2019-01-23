@@ -52,24 +52,6 @@ class User extends CI_Model {
             return $result->result();
         }
     }
-
-//    /**
-//     * Gets the userId for a given username.
-//     * @param $username String username of the user
-//     * @return bool|ArrayObject Returns the result array if found or false if not found.
-//     */
-//    public function getUserId($username)
-//    {
-//        // get the result row from the 'user' table
-//        $this->db->select('userId');
-//        $this->db->where('username', $username);
-//        $result = $this->db->get('item');
-//        // check the number of rows in the result
-//        if ($result->num_rows() != 1) {
-//            return false;
-//        } else {
-//            return $result->result();
-//        }
-//    }
 }
+
 ?>

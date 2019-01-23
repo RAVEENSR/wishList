@@ -43,7 +43,7 @@ class ItemController extends REST_Controller
         if ($result) {
             $this->response ($result, REST_Controller::HTTP_OK);
         } else {
-            $this->response($result, REST_Controller::HTTP_NOT_FOUND);
+            $this->response($result, REST_Controller::HTTP_NO_CONTENT);
         }
     }
 
@@ -57,9 +57,9 @@ class ItemController extends REST_Controller
         $this->load->model('Item');
         $result = $this->Item->deleteItem($itemId);
         if ($result) {
-            $this->response (array('isValid' => true), REST_Controller::HTTP_NO_CONTENT);
+            $this->response (array('isValid' => true), REST_Controller::HTTP_OK);
         } else {
-            $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
+            $this->response(array('isValid' => false), REST_Controller::HTTP_NO_CONTENT);
         }
     }
 
@@ -80,7 +80,7 @@ class ItemController extends REST_Controller
         if ($result) {
             $this->response (array('isValid' => true), REST_Controller::HTTP_OK);
         } else {
-            $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
+            $this->response(array('isValid' => false), REST_Controller::HTTP_NO_CONTENT);
         }
     }
 

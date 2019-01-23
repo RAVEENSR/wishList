@@ -39,7 +39,7 @@ class UserController extends REST_Controller
                 = array('userId' => $result->userId, 'username' => $username, 'logged_in' => TRUE);
             $this->session->set_userdata ($userdata);
         } else {
-            $this->response(array('isValid' => false), REST_Controller::HTTP_NOT_FOUND);
+            $this->response(array('isValid' => false), REST_Controller::HTTP_NO_CONTENT);
         }
     }
 
@@ -54,7 +54,7 @@ class UserController extends REST_Controller
         if($result) {
             $this->response(array('isValid' => true), REST_Controller::HTTP_CREATED);
         } else {
-            $this->response(array('isValid' => false), REST_Controller::HTTP_OK);
+            $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
         }
     }
 
