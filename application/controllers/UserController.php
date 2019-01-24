@@ -35,8 +35,7 @@ class UserController extends REST_Controller
         $result = $this->User->login($username, $password);
         if ($result) {
             $this->response (array('isValid' => true, 'result' => $result), REST_Controller::HTTP_OK);
-            $userdata
-                = array('userId' => $result->userId, 'username' => $username, 'logged_in' => TRUE);
+            $userdata = array('userId' => $result->userId, 'username' => $username, 'logged_in' => TRUE);
             $this->session->set_userdata ($userdata);
         } else {
             $this->response(array('isValid' => false), REST_Controller::HTTP_NO_CONTENT);
@@ -55,6 +54,22 @@ class UserController extends REST_Controller
             $this->response(array('isValid' => true), REST_Controller::HTTP_CREATED);
         } else {
             $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * This REST api method will called when a user request a list sharing link.
+     */
+    public function shareLink_post() {
+        $username = $this->post( 'username');
+        $this->load->model('User');
+        $result = $this->User->isUserAvailable($username);
+        if($result) {
+            $userId = $result[0]->userId;
+            $generatedLink = "http://localhost/wishList/index.php/showlist/".$userId;
+            $this->response(array('isValid' => true, 'link' => $generatedLink), REST_Controller::HTTP_CREATED);
+        } else {
+            $this->response(array('isValid' => false), REST_Controller::HTTP_NO_CONTENT);
         }
     }
 

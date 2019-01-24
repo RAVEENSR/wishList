@@ -38,12 +38,10 @@ class User extends CI_Model {
     /**
      * Gets the row containing username and password of user.
      * @param $username String Username of the admin
-     * @param $password String Password of the admin
      * @return bool|ArrayObject Returns the result array if found or false if not found.
      */
-    public function login($username, $password) {
+    public function login($username) {
         $this->db->where('username', $username);
-        $this->db->where('password', $password);
         $result = $this->db->get('user');
         // check the number of rows in the result
         if ($result->num_rows() !== 1) {
@@ -51,6 +49,36 @@ class User extends CI_Model {
         } else {
             return $result->result();
         }
+    }
+
+    /**
+     * Gets the user row containing userId of the user.
+     * @param $userId integer id of the user
+     * @return bool|ArrayObject Returns the result array if found or false if not found.
+     */
+    public function getUser($userId) {
+        $this->db->where('userId', $userId);
+        $result = $this->db->get('user');
+        // check the number of rows in the result
+        if ($result->num_rows() !== 1) {
+            return false;
+        } else {
+            return $result->result();
+        }
+    }
+
+    /**
+     * Checks whether a given item title is available under a given user.
+     * @param $username String username of the user
+     * @return bool|ArrayObject Returns the result array if found or false if not found.
+     */
+    public function isUserAvailable($username)
+    {
+        $this->db->select('userId');
+        $this->db->where('username', $username);
+        $result = $this->db->get('user');
+        // check the number of rows in the result
+        return $result->num_rows() === 1 ? $result->result() : false;
     }
 }
 

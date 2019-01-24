@@ -74,7 +74,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="row">
             <div class="col-lg-12">
                 <div class="text-center">
-                    <h2>User Wish List</h2>
+                    <h2 id="listName">User Wish List</h2>
+                    <p id="listDescription">Details</p>
                 </div>
             </div>
         </div>
@@ -123,19 +124,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
+    <div class="container pt-40">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h2>Request a wish list share link</h2>
+                    <button type="button" class="btn btn-primary" id="get-share-link">Generate</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-sm-5 col-xs-12"></div>
+            <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12">
+                <div class="text-center">
+                    <span id="shareLink"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-5 col-xs-12"></div>
+        </div>
+    </div>
 </script>
 <script id="itemTemplate" type="text/html">
     <div class="accordion" id="accordionExample">
         <div class="card">
             <div class="card-header" id="headingOne">
                 <h5 class="mb-0 text-center">
-                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<%= title %>" aria-expanded="true" aria-controls="collapseOne">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<%= cardId %>"
+                            aria-expanded="true" aria-controls="collapseOne">
                         <%= title %>
                     </button>
                     <button type="button" class="btn btn-danger remove-item float-right">Delete</button>
                 </h5>
             </div>
-            <div id="collapse<%= title %>" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div id="collapse<%= cardId %>" class="collapse" aria-labelledby="headingOne"
+                 data-parent="#accordionExample">
                 <div class="card-body">
                     <div class="form-group form-inline">
                         <label>Title:&emsp;</label>
@@ -182,7 +204,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <a class="btn btn-primary" href="<?php echo site_url(); ?>" role="button">Login</a>
         </form>
     </nav>
-    <!-- user-login-area-start -->
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -224,7 +245,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
-    <!-- user-login-area-end -->
 </script>
 <!-- user.js -->
 <script type="text/javascript" src="<?php echo base_url(); ?>js/modelsAndUsers.js"></script>

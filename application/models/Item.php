@@ -50,7 +50,7 @@ class Item extends CI_Model
      */
     public function isItemTitleAvailableForUser($title, $userId)
     {
-        // get the result row from the 'category' table
+        // get the result row from the 'item' table
         $this->db->select('title');
         $this->db->where(array('title' => $title, 'userId' => $userId));
         $result = $this->db->get('item');
@@ -76,7 +76,6 @@ class Item extends CI_Model
      */
     public function deleteItem($itemId)
     {
-        echo "dsfas";
         $this->db->where('itemId', $itemId);
         $this->db->delete('item');
         return ($this->db->affected_rows() !== 1) ? false : true;

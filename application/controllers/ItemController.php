@@ -21,14 +21,9 @@ class ItemController extends REST_Controller
         parent::__construct();
     }
 
-    public function index()
+    public function index_get()
     {
-        if (!$this->session->userdata('username')) {
-            // if the user is not logged in redirect them to the login page
-            redirect(site_url() . '/userController/loadLogin');
-        } else {
-            $this->loadWishList();
-        }
+        $this->load->view('HomeView');
     }
 
     /**
@@ -90,7 +85,6 @@ class ItemController extends REST_Controller
      */
     public function items_post()
     {
-        echo "asda";
         $userId = (int)$this->post('userId');
         $title = $this->post('title');
         $url = $this->post('url');
@@ -103,6 +97,33 @@ class ItemController extends REST_Controller
             $this->response (array('isValid' => true), REST_Controller::HTTP_OK);
         } else {
             $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * REST api method used to get wish list items of a user.
+     * Sends isValid as false if not successful.
+     * @param $userId integer id of the user who owns the wish list
+     */
+    public function showlist_get($userId)
+    {
+        $this->load->model('Item');
+        $result = $this->Item->getAllItems($userId);
+        $this->load->model('User');
+        $userDetails = $this->User->getUser($userId);
+        if ($result) {
+            $data['items'] = $result;
+            $data['name'] = $userDetails[0]->name;
+            $data['listName'] = $userDetails[0]->listName;
+            $data['listDescription'] = $userDetails[0]->listDescription;
+            $this->load->view('VisitorListView', $data);
+        } else if ($userDetails){
+            $data['name'] = $userDetails[0]->name;
+            $data['listName'] = $userDetails[0]->listName;
+            $data['listDescription'] = $userDetails[0]->listDescription;
+            $this->load->view('VisitorListView', $data);
+        } else {
+            $this->load->view('HomeView');
         }
     }
 

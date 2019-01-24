@@ -1,3 +1,4 @@
+var nextCollapseCardId = 1;
 /* backbone model for user*/
 var Item = Backbone.Model.extend({
     defaults: {
@@ -95,6 +96,8 @@ var UserLoginView = Backbone.View.extend({
             // load compiled HTML template into the backbone "el"
             this.$el.html(template);
             $("#loginName").text(sessionStorage.username);
+            $("#listName").text(sessionStorage.listName);
+            $("#listDescription").text(sessionStorage.listDescription);
             itemList.fetch({
                 data: $.param({
                     userId: sessionStorage.userId,
@@ -113,7 +116,8 @@ var UserLoginView = Backbone.View.extend({
         "click .btn[id=logout-btn]": "doLogout",
         "click .btn[id=login-btn]": "doLogin",
         "click .btn[id=register-btn]": "loadRegister",
-        "click .btn[id=add-item-btn]": "createItem"
+        "click .btn[id=add-item-btn]": "createItem",
+        "click .btn[id=get-share-link]": "getLink"
     },
     /* Login event */
     doLogin: function (event) {
@@ -144,7 +148,11 @@ var UserLoginView = Backbone.View.extend({
                         sessionStorage.isloggedIn = true;
                         sessionStorage.username = user.attributes.result[0].username;
                         sessionStorage.userId = user.attributes.result[0].userId;
+                        sessionStorage.listName = user.attributes.result[0].listName;
+                        sessionStorage.listDescription = user.attributes.result[0].listDescription;
                         $("#loginName").text(user.attributes.result[0].username);
+                        $("#listName").text(sessionStorage.listName);
+                        $("#listDescription").text(sessionStorage.listDescription);
                     } else {
                         sessionStorage.isloggedIn = "false";
                         alert("Invalid username and password!");
@@ -153,7 +161,7 @@ var UserLoginView = Backbone.View.extend({
                 error: function (error) {
                     console.log(error);
                 }
-            })
+            });
         } else {
             alert("Please fill the username and password!");
         }
@@ -164,12 +172,17 @@ var UserLoginView = Backbone.View.extend({
         $.post("http://localhost/wishList/index.php/userController/logout", function (data) {
             sessionStorage.isloggedIn = "false";
             sessionStorage.username = "";
+            sessionStorage.userId = "";
+            sessionStorage.listName = "";
+            sessionStorage.listDescription = "";
             var template = _.template($("#loginTemplate").html(), {});
             self.$el.html(template);
         });
     },
     /* Add an item */
     addOne: function (item) {
+        item.attributes.cardId = nextCollapseCardId;
+        nextCollapseCardId++;
         var view = new ItemView({model: item});
         this.$("#wishList").append(view.render().el);
     },
@@ -181,6 +194,25 @@ var UserLoginView = Backbone.View.extend({
     /* Update an item */
     updateItem: function() {
         itemList.sort();
+    },
+    /* Get a link to share the list */
+    getLink: function() {
+        $.ajax({
+            url: "http://localhost/wishList/index.php/userController/shareLink",
+            type: "POST",
+            data: {username: sessionStorage.username},
+            success: function (data) {
+                if (data.isValid) {
+                    var link = data.link;
+                    $("#shareLink").text(link);
+                } else {
+                    alert("Error occurred while generating the list share link!");
+                }
+            },
+            error: function (error) {
+                alert("Error occurred while generating the list share link!");
+            }
+        });
     },
     /* Create an item */
     createItem: function(event) {
