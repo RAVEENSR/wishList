@@ -61,12 +61,12 @@ class Item extends CI_Model
     /**
      * Adds a new item to the wish list.
      * @param $itemConfigArray ArrayObject Details of the item as an associative array
-     * @return bool Returns true if result is successful or false if not found.
+     * @return bool/ArrayObject Returns the result array if successful or false if not found.
      */
     public function addItem($itemConfigArray)
     {
         $this->db->insert('item', $itemConfigArray);
-        return ($this->db->affected_rows() !== 1) ? false : true;
+        return ($this->db->affected_rows() !== 1) ? false : $this->db->insert_id();
     }
 
     /**

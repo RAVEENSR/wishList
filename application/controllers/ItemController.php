@@ -94,7 +94,7 @@ class ItemController extends REST_Controller
         $result = $this->Item->addItem(array('title' => $title, 'url' => $url, 'price' => $price,
             'priority' => $priority, 'userId' => $userId));
         if ($result) {
-            $this->response (array('isValid' => true), REST_Controller::HTTP_OK);
+            $this->response (array('itemId' => $result), REST_Controller::HTTP_CREATED);
         } else {
             $this->response(array('isValid' => false), REST_Controller::HTTP_BAD_REQUEST);
         }

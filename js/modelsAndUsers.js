@@ -43,6 +43,7 @@ var ItemView = Backbone.View.extend({
         this.listenTo(this.model, 'destroy', this.remove);
     },
     render: function () {
+        this.$el.empty();
         this.$el.html(this.template(this.model.toJSON()));
         this.input = this.$(".edit");
         return this;
@@ -85,6 +86,7 @@ var UserLoginView = Backbone.View.extend({
         this.render();
     },
     render: function () {
+        this.$el.empty();
         if (!sessionStorage.isloggedIn || sessionStorage.isloggedIn === "false") {
             // using underscore compile the #loginTemplate template
             var template = _.template($("#loginTemplate").html(), {});
@@ -170,6 +172,7 @@ var UserLoginView = Backbone.View.extend({
     doLogout: function (event) {
         var self = this;
         $.post("http://localhost/wishList/index.php/userController/logout", function (data) {
+            itemList.reset();
             sessionStorage.isloggedIn = "false";
             sessionStorage.username = "";
             sessionStorage.userId = "";
@@ -231,7 +234,7 @@ var UserLoginView = Backbone.View.extend({
             newTitle.val("");
             newUrl.val("");
             newPrice.val("");
-            newPriority.val("");
+            newPriority.val(1);
         } else {
             alert("Please fill all the fields required to add an item!");
         }
@@ -250,6 +253,7 @@ var UserRegisterView = Backbone.View.extend({
         this.render();
     },
     render: function (template) {
+        this.$el.empty();
         // using underscore compile the #registerTemplate template
         var template = _.template($("#registerTemplate").html(), {});
         // load compiled HTML template into the backbone "el"
@@ -277,6 +281,7 @@ var UserRegisterView = Backbone.View.extend({
                         alert("User Registered Successfully!");
                         var login_view1 = new UserLoginView({el: $("#body-div")});
                         login_view1.render();
+                        location.reload();
                     } else {
                         sessionStorage.isloggedIn = false;
                         alert("User registration failed!");

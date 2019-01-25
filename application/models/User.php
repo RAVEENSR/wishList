@@ -38,10 +38,12 @@ class User extends CI_Model {
     /**
      * Gets the row containing username and password of user.
      * @param $username String Username of the admin
+     * @param $password String Password of the admin
      * @return bool|ArrayObject Returns the result array if found or false if not found.
      */
-    public function login($username) {
+    public function login($username, $password) {
         $this->db->where('username', $username);
+        $this->db->where('password', $password);
         $result = $this->db->get('user');
         // check the number of rows in the result
         if ($result->num_rows() !== 1) {
