@@ -32,11 +32,15 @@ class UserController extends REST_Controller
         $username = $this->get ( 'username' );
         $password = $this->get ( 'password' );
         $this->load->model('User');
-        $result = $this->User->login($username, $password);
+        $result = $this->User->login($username);
         if ($result) {
-            $this->response (array('isValid' => true, 'result' => $result), REST_Controller::HTTP_OK);
-            $userdata = array('userId' => $result->userId, 'username' => $username, 'logged_in' => TRUE);
-            $this->session->set_userdata ($userdata);
+            if (password_verify($password, $result[0]->password)) {
+                $this->response (array('isValid' => true, 'result' => $result), REST_Controller::HTTP_OK);
+                $userdata = array('userId' => $result->userId, 'username' => $username, 'logged_in' => TRUE);
+                $this->session->set_userdata ($userdata);
+            } else {
+                $this->response(array('isValid' => false), REST_Controller::HTTP_NO_CONTENT);
+            }
         } else {
             $this->response(array('isValid' => false), REST_Controller::HTTP_NO_CONTENT);
         }
